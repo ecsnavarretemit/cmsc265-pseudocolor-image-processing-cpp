@@ -89,7 +89,7 @@ int main() {
     }
 
     cout << "Reading all images from the directory: " << in << endl;
-    cout << "Reading all images from the directory: " << out << endl;
+    cout << "Output will be saved in: " << out << endl;
 
     // create Matrices for src, dst
     cv::Mat src, dst;

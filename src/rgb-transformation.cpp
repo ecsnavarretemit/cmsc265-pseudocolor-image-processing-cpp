@@ -40,7 +40,7 @@ int main() {
     }
 
     cout << "Reading all images from the directory: " << in << endl;
-    cout << "Reading all images from the directory: " << out << endl;
+    cout << "Output will be saved in: " << out << endl;
 
     // formula variables
     int a = 255;
