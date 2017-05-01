@@ -16,6 +16,9 @@
 
 using namespace std;
 
+// define pixel type
+typedef uchar Pixel;
+
 int main() {
     cv::Mat src, dst;
     string cwd = boost::filesystem::current_path().string();
@@ -40,6 +43,7 @@ int main() {
 
     // formula variables
     int a = 255;
+    float b = (2 * M_PI) / 255;
     float c = M_PI / 5;
 
     // read all images in the folder
@@ -59,35 +63,30 @@ int main() {
         vector<cv::Mat> ch;
 
         // create empty mat for placing the processed values for each channel
-        cv::Mat r = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
-        cv::Mat g = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
-        cv::Mat b = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
+        cv::Mat red = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
+        cv::Mat green = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
+        cv::Mat blue = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
 
-        // loop through all contents of the matrix
-        for(int i = 0; i < src.cols; i++) {
-            for(int j = 0; j < src.rows; j++) {
-                // get pixel at coordinates j, i
-                int x = (int) src.at<uchar>(j, i);
+        // loop through each pixel using Mat::forEach and C++11 lambda.
+        src.forEach<Pixel>([&a, &b, &c, &red, &green, &blue](Pixel &pixel, const int * position) -> void {
+            // compute the value of bx
+            float bx = b * (int) pixel;
 
-                // compute the value of bx
-                float bx = ((2 * M_PI) / 255) * x;
+            // perform transformation on the r channel: R = a | sin(bx) |
+            red.at<uchar>(position[0], position[1]) = a * abs(sin(bx));
 
-                // perform transformation on the r channel: R = a | sin(bx) |
-                r.at<uchar>(j, i) = a * abs(sin(bx));
+            // perform transformation on the g channel: G = a | sin(bx + c) |
+            green.at<uchar>(position[0], position[1]) = a * abs(sin(bx + c));
 
-                // perform transformation on the g channel: G = a | sin(bx + c) |
-                g.at<uchar>(j, i) = a * abs(sin(bx + c));
-
-                // perform transformation on the b channel: B = a | sin(bx + 2c) |
-                b.at<uchar>(j, i) = a * abs(sin(bx + (2 * c)));
-            }
-        }
+            // perform transformation on the b channel: B = a | sin(bx + 2c) |
+            blue.at<uchar>(position[0], position[1]) = a * abs(sin(bx + (2 * c)));
+        });
 
         // add the channels in to the vector matrix in the arrangement of bgr
         // since opencv reads rgb images in bgr not rgb
-        ch.push_back(b);
-        ch.push_back(g);
-        ch.push_back(r);
+        ch.push_back(blue);
+        ch.push_back(green);
+        ch.push_back(red);
 
         // merge the channels
         cv::merge(ch, dst);
@@ -98,9 +97,9 @@ int main() {
         // free up resources
         src.release();
         dst.release();
-        r.release();
-        g.release();
-        b.release();
+        red.release();
+        green.release();
+        blue.release();
     }
 
     cout << "Done processing images." << endl;
