@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "boost/filesystem.hpp"
