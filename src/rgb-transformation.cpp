@@ -16,6 +16,9 @@
 
 using namespace std;
 
+// define pixel type
+typedef uchar Pixel;
+
 int main() {
     cv::Mat src, dst;
     string cwd = boost::filesystem::current_path().string();
@@ -63,25 +66,20 @@ int main() {
         cv::Mat g = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
         cv::Mat b = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
 
-        // loop through all contents of the matrix
-        for(int i = 0; i < src.cols; i++) {
-            for(int j = 0; j < src.rows; j++) {
-                // get pixel at coordinates j, i
-                int x = (int) src.at<uchar>(j, i);
+        // loop through each pixel using Mat::forEach and C++11 lambda.
+        src.forEach<Pixel>([&a, &c, &r, &g, &b](Pixel &pixel, const int * position) -> void {
+            // compute the value of bx
+            float bx = ((2 * M_PI) / 255) * (int) pixel;
 
-                // compute the value of bx
-                float bx = ((2 * M_PI) / 255) * x;
+            // perform transformation on the r channel: R = a | sin(bx) |
+            r.at<uchar>(position[0], position[1]) = a * abs(sin(bx));
 
-                // perform transformation on the r channel: R = a | sin(bx) |
-                r.at<uchar>(j, i) = a * abs(sin(bx));
+            // perform transformation on the g channel: G = a | sin(bx + c) |
+            g.at<uchar>(position[0], position[1]) = a * abs(sin(bx + c));
 
-                // perform transformation on the g channel: G = a | sin(bx + c) |
-                g.at<uchar>(j, i) = a * abs(sin(bx + c));
-
-                // perform transformation on the b channel: B = a | sin(bx + 2c) |
-                b.at<uchar>(j, i) = a * abs(sin(bx + (2 * c)));
-            }
-        }
+            // perform transformation on the b channel: B = a | sin(bx + 2c) |
+            b.at<uchar>(position[0], position[1]) = a * abs(sin(bx + (2 * c)));
+        });
 
         // add the channels in to the vector matrix in the arrangement of bgr
         // since opencv reads rgb images in bgr not rgb
