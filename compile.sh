@@ -12,5 +12,6 @@ mkdir -p out/compiled
 
 # compile the program
 g++ $OPENCV_PKG_CONFIG $BOOST_FLAGS -std=c++11 src/color-map.cpp -o out/compiled/color-map
+g++ $OPENCV_PKG_CONFIG $BOOST_FLAGS -std=c++11 src/rgb-transformation.cpp -o out/compiled/rgb-transformation
 
 
