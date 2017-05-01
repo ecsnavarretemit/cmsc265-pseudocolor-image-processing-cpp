@@ -3,7 +3,7 @@
  *
  * Copyright(c) Exequiel Ceasar Navarrete <esnavarrete1@up.edu.ph>
  * Licensed under MIT
- * Version 1.0.0-alpha
+ * Version 1.0.0
  */
 
 #include <iostream>
@@ -44,6 +44,7 @@ int main() {
 
     // read all images in the folder
     for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(in), {})) {
+        // skip iteration when the file does not have ".jpg" file extension
         if (entry.path().extension() != ".jpg") {
             continue;
         }
@@ -82,7 +83,8 @@ int main() {
             }
         }
 
-        // add the channels in to the vector matrix
+        // add the channels in to the vector matrix in the arrangement of bgr
+        // since opencv reads rgb images in bgr not rgb
         ch.push_back(b);
         ch.push_back(g);
         ch.push_back(r);
