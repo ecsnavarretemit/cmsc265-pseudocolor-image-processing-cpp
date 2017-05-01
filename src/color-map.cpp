@@ -3,14 +3,16 @@
  *
  * Copyright(c) Exequiel Ceasar Navarrete <esnavarrete1@up.edu.ph>
  * Licensed under MIT
- * Version 1.0.1
+ * Version 1.0.2
  */
 
 #include <iostream>
+#include <vector>
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/range/iterator_range.hpp"
+#include "files.cpp"
 
 using namespace std;
 
@@ -21,7 +23,7 @@ struct {
 } colormaps[13];
 
 int main() {
-    cv::Mat src, dst;
+    // resolve and normalize paths
     string cwd = boost::filesystem::current_path().string();
     string in_path = cwd + "/assets/img";
     string out_path = cwd + "/out/color-map";
@@ -82,48 +84,54 @@ int main() {
 
     // create output folder if it does not exist
     if(!boost::filesystem::exists(out) && !boost::filesystem::create_directories(out)) {
-        cout << "Error in creating output directory" << out << endl;
+        cerr << "Error in creating output directory" << out << endl;
         return 1;
     }
 
     cout << "Reading all images from the directory: " << in << endl;
-    cout << "Reading all images from the directory: " << out << endl;
+    cout << "Output will be saved in: " << out << endl;
 
-    // read all images in the folder
-    for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(in), {})) {
-        // skip iteration when the file does not have ".jpg" file extension
-        if (entry.path().extension() != ".jpg") {
-            continue;
+    // create Matrices for src, dst
+    cv::Mat src, dst;
+
+    try {
+        vector<boost::filesystem::path> imgs = get_images(in_path);
+
+        for (auto & img : imgs) {
+            // assemble the output path
+            boost::filesystem::path im_out = out / img.stem();
+
+            // create output folder if it does not exist
+            if(!boost::filesystem::exists(im_out) && !boost::filesystem::create_directories(im_out)) {
+                throw "Error in writing files!";
+            }
+
+            // loop through all defined constants
+            for (int i = 0; i < 13; i++) {
+                // assemble the path to the newly created image
+                string image_name = colormaps[i].name + ".jpg";
+                boost::filesystem::path color_im_out = im_out / image_name;
+
+                // read image in grayscale
+                src = cv::imread(img.string(), CV_LOAD_IMAGE_GRAYSCALE);
+
+                // apply colormaps
+                cv::applyColorMap(src, dst, colormaps[i].color_constant);
+
+                // write to the filesystem
+                cv::imwrite(color_im_out.string(), dst);
+
+                // free up resources
+                src.release();
+                dst.release();
+            }
         }
-
-        // assemble the output path
-        boost::filesystem::path im_out = out / entry.path().stem();
-
-        // create output folder if it does not exist
-        if(!boost::filesystem::exists(im_out) && !boost::filesystem::create_directories(im_out)) {
-            cout << "Error in writing files!" << endl;
-            return 1;
-        }
-
-        // loop through all defined constants
-        for (int i = 0; i < 13; i++) {
-            // assemble the path to the newly created image
-            string image_name = colormaps[i].name + ".jpg";
-            boost::filesystem::path color_im_out = im_out / image_name;
-
-            // read image in grayscale
-            src = cv::imread(entry.path().string(), CV_LOAD_IMAGE_GRAYSCALE);
-
-            // apply colormaps
-            cv::applyColorMap(src, dst, colormaps[i].color_constant);
-
-            // write to the filesystem
-            cv::imwrite(color_im_out.string(), dst);
-
-            // free up resources
-            src.release();
-            dst.release();
-        }
+    } catch(const invalid_argument& e) {
+        cerr << e.what() << endl;
+        return 1;
+    } catch (const string msg) {
+        cerr << msg << endl;
+        return 1;
     }
 
     cout << "Done processing images." << endl;
