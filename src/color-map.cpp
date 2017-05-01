@@ -91,6 +91,7 @@ int main() {
 
     // read all images in the folder
     for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(in), {})) {
+        // skip iteration when the file does not have ".jpg" file extension
         if (entry.path().extension() != ".jpg") {
             continue;
         }
