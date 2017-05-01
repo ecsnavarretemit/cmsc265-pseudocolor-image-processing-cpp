@@ -46,6 +46,9 @@ int main() {
     float b = (2 * M_PI) / 255;
     float c = M_PI / 5;
 
+    // create a vector that will hold the processed r, g, b channels
+    vector<cv::Mat> rgb_vector;
+
     // read all images in the folder
     for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(in), {})) {
         // skip iteration when the file does not have ".jpg" file extension
@@ -58,9 +61,6 @@ int main() {
 
         // read image in grayscale
         src = cv::imread(entry.path().string(), CV_LOAD_IMAGE_GRAYSCALE);
-
-        // create a vector that will hold the processed r,g,b channels
-        vector<cv::Mat> ch;
 
         // create empty mat for placing the processed values for each channel
         cv::Mat red = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
@@ -84,15 +84,18 @@ int main() {
 
         // add the channels in to the vector matrix in the arrangement of bgr
         // since opencv reads rgb images in bgr not rgb
-        ch.push_back(blue);
-        ch.push_back(green);
-        ch.push_back(red);
+        rgb_vector.push_back(blue);
+        rgb_vector.push_back(green);
+        rgb_vector.push_back(red);
 
         // merge the channels
-        cv::merge(ch, dst);
+        cv::merge(rgb_vector, dst);
 
         // write to the filesystem
         cv::imwrite(im_out.string(), dst);
+
+        // empty out the vector for the next iteration
+        rgb_vector.clear();
 
         // free up resources
         src.release();
