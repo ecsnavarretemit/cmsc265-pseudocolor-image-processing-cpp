@@ -21,7 +21,7 @@ struct {
 } colormaps[13];
 
 int main() {
-    cv::Mat src, dst;
+    // resolve and normalize paths
     string cwd = boost::filesystem::current_path().string();
     string in_path = cwd + "/assets/img";
     string out_path = cwd + "/out/color-map";
@@ -88,6 +88,9 @@ int main() {
 
     cout << "Reading all images from the directory: " << in << endl;
     cout << "Reading all images from the directory: " << out << endl;
+
+    // create Matrices for src, dst
+    cv::Mat src, dst;
 
     // read all images in the folder
     for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(in), {})) {

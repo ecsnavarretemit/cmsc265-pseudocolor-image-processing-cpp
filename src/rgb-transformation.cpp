@@ -20,6 +20,7 @@ using namespace std;
 typedef uchar Pixel;
 
 int main() {
+    // resolve and normalize paths
     string cwd = boost::filesystem::current_path().string();
     string in_path = cwd + "/assets/img";
     string out_path = cwd + "/out/rgb-transformation";
