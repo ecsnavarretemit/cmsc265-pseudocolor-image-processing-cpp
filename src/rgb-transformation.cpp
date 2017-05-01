@@ -51,6 +51,9 @@ int main() {
     // create Matrices for src, dst, red, green and blue
     cv::Mat src, dst, red, green, blue;
 
+    // variable to use in storing image dimensions
+    cv::Size im_size;
+
     // read all images in the folder
     for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(in), {})) {
         // skip iteration when the file does not have ".jpg" file extension
@@ -64,10 +67,13 @@ int main() {
         // read image in grayscale
         src = cv::imread(entry.path().string(), CV_LOAD_IMAGE_GRAYSCALE);
 
+        // create Size object
+        im_size = cv::Size(src.cols, src.rows);
+
         // create empty mat for placing the processed values for each channel
-        red = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
-        green = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
-        blue = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
+        red = cv::Mat::zeros(im_size, CV_8UC1);
+        green = cv::Mat::zeros(im_size, CV_8UC1);
+        blue = cv::Mat::zeros(im_size, CV_8UC1);
 
         // loop through each pixel using Mat::forEach and C++11 lambda.
         src.forEach<Pixel>([&a, &b, &c, &red, &green, &blue](Pixel &pixel, const int * position) -> void {
