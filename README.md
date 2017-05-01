@@ -15,7 +15,7 @@ To compile the program, the following flags are needed:
 
 If `pkg-config` is installed and used during compilation of OpenCV, You can easily replace the OpenCV flags with `pkg-config --cflags --libs opencv`;
 
-The program should be compiled with `g++ <opencv_flags> <boost_flags> -std=c++11 <source_code>.cpp -o <where_to_place_the_compiled_file>`.
+The program should be compiled with `g++ <opencv_flags> <boost_flags> -std=c++11 <source_code>.cpp -o <where_to_place_the_compiled_file>`. The flag `-std=c++11` tells the compiler that the programs should be compiled with C++11 compatibility. Without the flag, the compilation will not work and will throw errors.
 
 There is a shell script named `compile.sh` that does this for you automatically. If not properly working, just replace the flags related to OpenCV and Boost. Finally run `sh compile.sh` or `./compile.sh`.
 
