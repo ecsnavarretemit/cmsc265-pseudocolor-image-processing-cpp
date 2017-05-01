@@ -13,7 +13,6 @@
 #include "boost/range/iterator_range.hpp"
 
 using namespace std;
-// using namespace boost::filesystem;
 
 // define structure for colormap constants
 struct {
