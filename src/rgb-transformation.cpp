@@ -20,7 +20,6 @@ using namespace std;
 typedef uchar Pixel;
 
 int main() {
-    cv::Mat src, dst;
     string cwd = boost::filesystem::current_path().string();
     string in_path = cwd + "/assets/img";
     string out_path = cwd + "/out/rgb-transformation";
@@ -49,6 +48,9 @@ int main() {
     // create a vector that will hold the processed r, g, b channels
     vector<cv::Mat> rgb_vector;
 
+    // create Matrices for src, dst, red, green and blue
+    cv::Mat src, dst, red, green, blue;
+
     // read all images in the folder
     for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(in), {})) {
         // skip iteration when the file does not have ".jpg" file extension
@@ -63,9 +65,9 @@ int main() {
         src = cv::imread(entry.path().string(), CV_LOAD_IMAGE_GRAYSCALE);
 
         // create empty mat for placing the processed values for each channel
-        cv::Mat red = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
-        cv::Mat green = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
-        cv::Mat blue = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
+        red = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
+        green = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
+        blue = cv::Mat::zeros(cv::Size(src.cols, src.rows), CV_8UC1);
 
         // loop through each pixel using Mat::forEach and C++11 lambda.
         src.forEach<Pixel>([&a, &b, &c, &red, &green, &blue](Pixel &pixel, const int * position) -> void {
