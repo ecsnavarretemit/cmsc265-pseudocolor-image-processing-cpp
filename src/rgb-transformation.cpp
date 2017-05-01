@@ -35,7 +35,7 @@ int main() {
 
     // create output folder if it does not exist
     if(!boost::filesystem::exists(out) && !boost::filesystem::create_directories(out)) {
-        cout << "Error in creating output directory" << out << endl;
+        cerr << "Error in creating output directory" << out << endl;
         return 1;
     }
 
