@@ -10,7 +10,7 @@
 
 # compiler flags, includes and libs
 OPENCV_FLAGS=`pkg-config --cflags --libs opencv`
-BOOST_FLAGS="-I/usr/local/opt/boost/include -lboost_system -lboost_filesystem"
+BOOST_FLAGS="-I/usr/local/opt/boost/include -L/usr/local/opt/boost/lib -lboost_system -lboost_filesystem"
 
 echo "Removing previously compiled programs."
 
