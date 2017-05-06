@@ -13,7 +13,9 @@ To compile the program, the following flags are needed:
 1. OpenCV Include Flags: `-I<path_to_opencv>/include/opencv -I<path_to_opencv>/include`
 2. OpenCV Link Flags: `-L<path_to_opencv>/lib -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_imgcodecs`
 3. Boost Include Flags: `-I<path_to_boost>/include`
-4. Boost Link FLags: `-L<path_to_boost>/lib -lboost_system -lboost_filesystem`
+4. Boost Link Flags: `-L<path_to_boost>/lib -lboost_system -lboost_filesystem`
+
+_Note_: on Linux systems like Ubuntu when installing boost via `apt-get` package manager, you can set the boost include flags to empty string and the boost link flags to `-lboost_system -lboost_filesystem` since the OS exposes boost globally without the need to specify the path to include and lib directories.
 
 If `pkg-config` is installed and used during compilation of OpenCV, You can easily replace the OpenCV flags with `pkg-config --cflags --libs opencv`.
 Verify first if the command returns value. If no value returned then use the manual inclusion of flags.
