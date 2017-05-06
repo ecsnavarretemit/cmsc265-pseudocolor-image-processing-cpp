@@ -11,7 +11,6 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "boost/filesystem.hpp"
-#include "boost/range/iterator_range.hpp"
 #include "files.cpp"
 
 using namespace std;
