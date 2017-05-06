@@ -53,11 +53,30 @@ int main() {
     // create Matrices for src, dst, red, green and blue
     cv::Mat src, dst, red, green, blue;
 
-    // variable to use in storing image dimensions
-    cv::Size im_size;
-
     try {
         vector<boost::filesystem::path> imgs = get_images(in_path);
+
+        int pixel_max_value = 256;
+
+        // define lookup table
+        vector<uchar> red_lut(pixel_max_value);
+        vector<uchar> green_lut(pixel_max_value);
+        vector<uchar> blue_lut(pixel_max_value);
+
+        // pre-compute and assign computed values in the lookup table for each channel
+        for (int i = 0; i < pixel_max_value; i++) {
+            // compute the value of bx
+            float bx = b * i;
+
+            // perform transformation on the r channel: R = a | sin(bx) |
+            red_lut[i] = a * abs(sin(bx));
+
+            // perform transformation on the g channel: G = a | sin(bx + c) |
+            green_lut[i] = a * abs(sin(bx + c));
+
+            // perform transformation on the b channel: B = a | sin(bx + 2c) |
+            blue_lut[i] = a * abs(sin(bx + (2 * c)));
+        }
 
         for (auto & img : imgs) {
              // assemble the output path
@@ -66,28 +85,10 @@ int main() {
             // read image in grayscale
             src = cv::imread(img.string(), CV_LOAD_IMAGE_GRAYSCALE);
 
-            // create Size object
-            im_size = cv::Size(src.cols, src.rows);
-
-            // create empty mat for placing the processed values for each channel
-            red = cv::Mat::zeros(im_size, CV_8UC1);
-            green = cv::Mat::zeros(im_size, CV_8UC1);
-            blue = cv::Mat::zeros(im_size, CV_8UC1);
-
-            // loop through each pixel using Mat::forEach and C++11 lambda.
-            src.forEach<Pixel>([a, b, c, &red, &green, &blue](Pixel &pixel, const int * position) -> void {
-                // compute the value of bx
-                float bx = b * (int) pixel;
-
-                // perform transformation on the r channel: R = a | sin(bx) |
-                red.at<uchar>(position[0], position[1]) = a * abs(sin(bx));
-
-                // perform transformation on the g channel: G = a | sin(bx + c) |
-                green.at<uchar>(position[0], position[1]) = a * abs(sin(bx + c));
-
-                // perform transformation on the b channel: B = a | sin(bx + 2c) |
-                blue.at<uchar>(position[0], position[1]) = a * abs(sin(bx + (2 * c)));
-            });
+            // apply lookup table each matrix: red, green and blue
+            cv::LUT(src, red_lut, red);
+            cv::LUT(src, green_lut, green);
+            cv::LUT(src, blue_lut, blue);
 
             // add the channels in to the vector matrix in the arrangement of bgr
             // since opencv reads rgb images in bgr not rgb
