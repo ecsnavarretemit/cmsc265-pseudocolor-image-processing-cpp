@@ -75,7 +75,7 @@ int main() {
             blue = cv::Mat::zeros(im_size, CV_8UC1);
 
             // loop through each pixel using Mat::forEach and C++11 lambda.
-            src.forEach<Pixel>([&a, &b, &c, &red, &green, &blue](Pixel &pixel, const int * position) -> void {
+            src.forEach<Pixel>([a, b, c, &red, &green, &blue](Pixel &pixel, const int * position) -> void {
                 // compute the value of bx
                 float bx = b * (int) pixel;
 
