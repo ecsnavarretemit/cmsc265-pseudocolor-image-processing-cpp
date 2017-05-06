@@ -21,26 +21,26 @@ using namespace std;
 typedef uchar Pixel;
 
 int main() {
+    boost::filesystem::path in_path;
+    boost::filesystem::path out_path;
+
     // resolve and normalize paths
-    string cwd = boost::filesystem::current_path().string();
-    string in_path = cwd + "/assets/img";
-    string out_path = cwd + "/out/rgb-transformation";
-    boost::filesystem::path in(in_path);
-    boost::filesystem::path out(out_path);
+    in_path = boost::filesystem::system_complete("assets/img");
+    out_path = boost::filesystem::system_complete("out/rgb-transformation");
 
     // delete the contents of the output folder
-    if (boost::filesystem::exists(out)) {
-        boost::filesystem::remove_all(out);
+    if (boost::filesystem::exists(out_path)) {
+        boost::filesystem::remove_all(out_path);
     }
 
     // create output folder if it does not exist
-    if(!boost::filesystem::exists(out) && !boost::filesystem::create_directories(out)) {
-        cerr << "Error in creating output directory" << out << endl;
+    if(!boost::filesystem::exists(out_path) && !boost::filesystem::create_directories(out_path)) {
+        cerr << "Error in creating output directory" << out_path.string() << endl;
         return 1;
     }
 
-    cout << "Reading all images from the directory: " << in << endl;
-    cout << "Output will be saved in: " << out << endl;
+    cout << "Reading all images from the directory: " << in_path.string() << endl;
+    cout << "Output will be saved in: " << out_path.string() << endl;
 
     // formula variables
     int a = 255;
@@ -80,7 +80,7 @@ int main() {
 
         for (auto & img : imgs) {
              // assemble the output path
-            boost::filesystem::path im_out = out / img.filename();
+            boost::filesystem::path im_out = out_path / img.filename();
 
             // read image in grayscale
             src = cv::imread(img.string(), CV_LOAD_IMAGE_GRAYSCALE);
