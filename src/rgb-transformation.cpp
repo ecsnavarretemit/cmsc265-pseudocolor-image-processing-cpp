@@ -3,7 +3,7 @@
  *
  * Copyright(c) Exequiel Ceasar Navarrete <esnavarrete1@up.edu.ph>
  * Licensed under MIT
- * Version 1.0.3
+ * Version 1.0.4
  */
 
 #include <iostream>
@@ -12,7 +12,6 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "boost/filesystem.hpp"
-#include "boost/range/iterator_range.hpp"
 #include "files.cpp"
 
 using namespace std;
@@ -21,26 +20,26 @@ using namespace std;
 typedef uchar Pixel;
 
 int main() {
+    boost::filesystem::path in_path;
+    boost::filesystem::path out_path;
+
     // resolve and normalize paths
-    string cwd = boost::filesystem::current_path().string();
-    string in_path = cwd + "/assets/img";
-    string out_path = cwd + "/out/rgb-transformation";
-    boost::filesystem::path in(in_path);
-    boost::filesystem::path out(out_path);
+    in_path = boost::filesystem::system_complete("assets/img");
+    out_path = boost::filesystem::system_complete("out/rgb-transformation");
 
     // delete the contents of the output folder
-    if (boost::filesystem::exists(out)) {
-        boost::filesystem::remove_all(out);
+    if (boost::filesystem::exists(out_path)) {
+        boost::filesystem::remove_all(out_path);
     }
 
     // create output folder if it does not exist
-    if(!boost::filesystem::exists(out) && !boost::filesystem::create_directories(out)) {
-        cerr << "Error in creating output directory" << out << endl;
+    if(!boost::filesystem::exists(out_path) && !boost::filesystem::create_directories(out_path)) {
+        cerr << "Error in creating output directory" << out_path.string() << endl;
         return 1;
     }
 
-    cout << "Reading all images from the directory: " << in << endl;
-    cout << "Output will be saved in: " << out << endl;
+    cout << "Reading all images from the directory: " << in_path.string() << endl;
+    cout << "Output will be saved in: " << out_path.string() << endl;
 
     // formula variables
     int a = 255;
@@ -53,41 +52,42 @@ int main() {
     // create Matrices for src, dst, red, green and blue
     cv::Mat src, dst, red, green, blue;
 
-    // variable to use in storing image dimensions
-    cv::Size im_size;
-
     try {
         vector<boost::filesystem::path> imgs = get_images(in_path);
 
+        int pixel_max_value = 256;
+
+        // define lookup table
+        vector<uchar> red_lut(pixel_max_value);
+        vector<uchar> green_lut(pixel_max_value);
+        vector<uchar> blue_lut(pixel_max_value);
+
+        // pre-compute and assign computed values in the lookup table for each channel
+        for (int i = 0; i < pixel_max_value; i++) {
+            // compute the value of bx
+            float bx = b * i;
+
+            // perform transformation on the r channel: R = a | sin(bx) |
+            red_lut[i] = a * abs(sin(bx));
+
+            // perform transformation on the g channel: G = a | sin(bx + c) |
+            green_lut[i] = a * abs(sin(bx + c));
+
+            // perform transformation on the b channel: B = a | sin(bx + 2c) |
+            blue_lut[i] = a * abs(sin(bx + (2 * c)));
+        }
+
         for (auto & img : imgs) {
              // assemble the output path
-            boost::filesystem::path im_out = out / img.filename();
+            boost::filesystem::path im_out = out_path / img.filename();
 
             // read image in grayscale
             src = cv::imread(img.string(), CV_LOAD_IMAGE_GRAYSCALE);
 
-            // create Size object
-            im_size = cv::Size(src.cols, src.rows);
-
-            // create empty mat for placing the processed values for each channel
-            red = cv::Mat::zeros(im_size, CV_8UC1);
-            green = cv::Mat::zeros(im_size, CV_8UC1);
-            blue = cv::Mat::zeros(im_size, CV_8UC1);
-
-            // loop through each pixel using Mat::forEach and C++11 lambda.
-            src.forEach<Pixel>([&a, &b, &c, &red, &green, &blue](Pixel &pixel, const int * position) -> void {
-                // compute the value of bx
-                float bx = b * (int) pixel;
-
-                // perform transformation on the r channel: R = a | sin(bx) |
-                red.at<uchar>(position[0], position[1]) = a * abs(sin(bx));
-
-                // perform transformation on the g channel: G = a | sin(bx + c) |
-                green.at<uchar>(position[0], position[1]) = a * abs(sin(bx + c));
-
-                // perform transformation on the b channel: B = a | sin(bx + 2c) |
-                blue.at<uchar>(position[0], position[1]) = a * abs(sin(bx + (2 * c)));
-            });
+            // apply lookup table each matrix: red, green and blue
+            cv::LUT(src, red_lut, red);
+            cv::LUT(src, green_lut, green);
+            cv::LUT(src, blue_lut, blue);
 
             // add the channels in to the vector matrix in the arrangement of bgr
             // since opencv reads rgb images in bgr not rgb
