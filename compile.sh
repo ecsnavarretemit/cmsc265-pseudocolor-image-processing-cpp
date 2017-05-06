@@ -4,7 +4,7 @@
 #
 # Copyright(c) Exequiel Ceasar Navarrete <esnavarrete1@up.edu.ph>
 # Licensed under MIT
-# Version 1.0.3
+# Version 1.0.4
 
 # Compile script for C++ program
 

@@ -3,7 +3,7 @@
  *
  * Copyright(c) Exequiel Ceasar Navarrete <esnavarrete1@up.edu.ph>
  * Licensed under MIT
- * Version 1.0.3
+ * Version 1.0.4
  */
 
 #include <iostream>
@@ -12,7 +12,6 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "boost/filesystem.hpp"
-#include "boost/range/iterator_range.hpp"
 #include "files.cpp"
 
 using namespace std;
